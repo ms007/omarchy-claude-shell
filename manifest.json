@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "ms007.omarchy-claude-shell",
+  "name": "Claude ping",
+  "version": "1.0.0",
+  "author": "ms007",
+  "description": "Shows the Claude mark in the bar while a Claude Code session waits for input",
+  "kinds": ["bar-widget"],
+  "entryPoints": { "barWidget": "Widget.qml" },
+  "barWidget": {
+    "displayName": "Claude ping",
+    "description": "Claude mark while a Claude Code session waits for input",
+    "category": "AI",
+    "allowMultiple": false,
+    "defaultSection": "right"
+  }
+}

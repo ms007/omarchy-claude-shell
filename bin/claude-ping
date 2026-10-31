@@ -1,0 +1,24 @@
+#!/bin/bash
+# Claude Code hook: claude-ping <waiting|done>
+# Reads the hook JSON from stdin and forwards session id, project and the
+# Hyprland window the session runs in to the bar.
+input=$(cat)
+session=$(jq -r '.session_id // "default"' <<<"$input" 2>/dev/null)
+project=$(basename "$(jq -r '.cwd // ""' <<<"$input" 2>/dev/null)")
+
+# Walk up the process tree until a pid owns a Hyprland window (the terminal).
+window_address() {
+  local clients pid=$PPID addr
+  clients=$(hyprctl clients -j 2>/dev/null) || return
+  while [[ -n $pid && $pid -gt 1 ]]; do
+    addr=$(jq -r --argjson p "$pid" '.[] | select(.pid == $p) | .address' <<<"$clients" | head -1)
+    [[ -n $addr ]] && { echo "${addr#0x}"; return; }
+    pid=$(ps -o ppid= -p "$pid" | tr -d ' ')
+  done
+}
+
+case "$1" in
+  waiting) omarchy-shell -q ms007.omarchy-claude-shell waiting "${session:-default}" "${project:-claude}" "$(window_address)" ;;
+  done) omarchy-shell -q ms007.omarchy-claude-shell done "${session:-default}" ;;
+esac
+exit 0
